@@ -1,0 +1,682 @@
+#include <iostream>
+#include <string>
+#define insize 1
+using namespace std;
+enum os
+{
+    iOS,
+    Android,
+    windows_phone
+};
+enum ram
+{
+    GB_2,
+    GB_4,
+    GB_6,
+    GB_8,
+    GB_12,
+    GB_16,
+    GB_32,
+    GB_64
+};
+enum storage
+{
+    GB16,
+    GB32,
+    GB64,
+    GB128,
+    GB256,
+    GB512,
+    TB1,
+    TB2
+};
+enum color
+{
+    White,
+    Black,
+    Red,
+    Blue,
+    Yellow,
+};
+struct mobileType
+{
+    string name;
+    string company;
+    string Ram;
+    string Storage;
+    string OS;
+    string Color;
+    int price;
+    long int avalibleInStore;
+    long int mobileSold;
+};
+void add_phone(mobileType *mobileStore, int &size, int &hiddenSize);
+void sort_by_price(mobileType *mobileStore, int hiddenSize);
+int search(mobileType *mobileStore, int hiddenSize);
+void printWithIndex(mobileType *mobileStore, int i);
+void change_mobile_info(mobileType *mobileStore, int hiddenSize);
+void print_phones(mobileType mobileStore[], int hiddenSize);
+void sell_a_phone(mobileType *mobileStore, int hiddenSize);
+void remove_phone(mobileType *mobileStore, int hiddenSize);
+void most_sold_item(mobileType *mobileStore, int hiddenSize);
+int main()
+{
+
+    int size = 1;
+    int hiddenSize = 0;
+    mobileType *mobileStore = new mobileType[size];
+    mobileType *p;
+    int in;
+    int menu;
+    do
+    {
+        cout << "1- Add a phone\n2- Remove a phone\n3- Sort phones by price\n";
+        cout << "4- Search a phone\n5- Change mobile info\n6- Sell a phone\n7- Print phones\n";
+        cout << "8- Print phones sorted by the most sold to the least\n9- Quit\n";
+        cout << "---------------------------------------\n";
+        cin >> menu;
+        switch (menu)
+        {
+        case 1:
+            system("cls");
+            if (hiddenSize >= size)
+            {
+                p = new mobileType[size + insize];
+                for (int i = 0; i < size; i++)
+                {
+                    p[i] = mobileStore[i];
+                }
+                delete[] mobileStore;
+                mobileStore = p;
+                size += insize;
+            }
+            add_phone(mobileStore, size, hiddenSize);
+            system("cls");
+            cout << "Added successfully:)\n";
+            break;
+        case 2:
+            system("cls");
+            if (hiddenSize != 0)
+            {
+                remove_phone(mobileStore, hiddenSize);
+                hiddenSize--;
+                system("cls");
+                cout << "Deleted successfully:)\n";
+            }
+            else
+            {
+                cout << "The phones list is empty!\n";
+            }
+            break;
+        case 3:
+            system("cls");
+            if (hiddenSize != 0)
+            {
+                sort_by_price(mobileStore, hiddenSize);
+                system("pause");
+                system("cls");
+            }
+            else
+            {
+                cout << "The phones list is empty!\n";
+            }
+
+            break;
+        case 4:
+            system("cls");
+            in = search(mobileStore, hiddenSize);
+            printWithIndex(mobileStore, in);
+            system("pause");
+            system("cls");
+            break;
+        case 5:
+            system("cls");
+            if (hiddenSize != 0)
+            {
+                change_mobile_info(mobileStore, hiddenSize);
+                system("cls");
+                cout << "Done\n";
+            }
+            else
+            {
+                cout << "The phones list is empty!\n";
+            }
+
+            break;
+        case 6:
+            system("cls");
+            sell_a_phone(mobileStore, hiddenSize);
+            system("cls");
+            cout << "Done\n";
+            break;
+        case 7:
+            system("cls");
+            if (hiddenSize != 0)
+            {
+                print_phones(mobileStore, hiddenSize);
+                system("pause");
+                system("cls");
+            }
+            else
+            {
+                cout << "The phones list is empty!\n";
+            }
+
+            break;
+        case 8:
+            system("cls");
+            if (hiddenSize != 0)
+            {
+                most_sold_item(mobileStore, hiddenSize);
+                cout << "\n\n";
+                system("pause");
+                system("cls");
+            }
+            else
+            {
+                cout << "The phones list is empty!\n";
+            }
+
+            break;
+
+            // default:
+            //     break;
+        }
+
+    } while (menu != 9);
+
+    system("pause");
+    return 0;
+}
+
+void print_phones(mobileType *mobileStore, int hiddenSize)
+{
+
+    for (int i = 0; i < hiddenSize; i++)
+    {
+        cout << endl
+             << i + 1 << "- Phone name : " << mobileStore[i].name << "    "
+             << "Phone company : " << mobileStore[i].company << endl;
+        cout << "Phone OS/Ram/Storage/Color : " << mobileStore[i].OS << "/" << mobileStore[i].Ram << "/" << mobileStore[i].Storage << "/" << mobileStore[i].Color << endl;
+        cout << "Phone price : " << mobileStore[i].price << endl;
+        cout << "Number of phones that exist in store : " << mobileStore[i].avalibleInStore << endl;
+        cout << "Number of phones that have been sold : " << mobileStore[i].mobileSold << endl
+             << endl;
+    }
+}
+
+void printWithIndex(mobileType *mobileStore, int i)
+{
+    cout << i + 1 << "- Phone name : " << mobileStore[i].name << "    "
+         << "Phone company : " << mobileStore[i].company << endl;
+    cout << "Phone OS/Ram/Storage/Color : " << mobileStore[i].OS << "/" << mobileStore[i].Ram << "/" << mobileStore[i].Storage << "/" << mobileStore[i].Color << endl;
+    cout << "Phone price : " << mobileStore[i].price << endl;
+    cout << "Number of phones that exist in store : " << mobileStore[i].avalibleInStore << endl;
+    cout << "Number of phones that have been sold : " << mobileStore[i].mobileSold << endl;
+}
+
+bool checkRepetition(mobileType *mobileStore, int hiddenSize, string name, string company)
+{
+    bool isRepeated = false;
+    for (int i = 0; i < hiddenSize; i++)
+    {
+        if (mobileStore[i].name == name && mobileStore[i].company == company)
+        {
+            isRepeated = true;
+            mobileStore[i].avalibleInStore++;
+        }
+    }
+
+    return isRepeated;
+}
+
+string selectOS(int OS)
+{
+    switch (OS)
+    {
+    case iOS:
+        return "IOS";
+        break;
+    case Android:
+        return "Android";
+        break;
+    case windows_phone:
+        return "WindowsPhone";
+        break;
+    default:
+        return "\0";
+        break;
+    }
+}
+
+string selectRam(int Ram)
+{
+    switch (Ram)
+    {
+    case GB_2:
+        return "2GB";
+        break;
+    case GB_4:
+        return "4GB";
+        break;
+    case GB_6:
+        return "6GB";
+        break;
+    case GB_8:
+        return "8GB";
+        break;
+    case GB_12:
+        return "12GB";
+        break;
+    case GB_16:
+        return "16GB";
+        break;
+    case GB_32:
+        return "32GB";
+        break;
+    case GB_64:
+        return "64GB";
+        break;
+    default:
+        return "\0";
+        break;
+    }
+}
+
+string selectStorage(int Storage)
+{
+    switch (Storage)
+    {
+    case GB16:
+        return "16GB";
+        break;
+    case GB32:
+        return "32GB";
+        break;
+    case GB64:
+        return "64GB";
+        break;
+    case GB128:
+        return "128GB";
+        break;
+    case GB256:
+        return "256GB";
+        break;
+    case GB512:
+        return "512GB";
+        break;
+    case TB1:
+        return "1TB";
+        break;
+    case TB2:
+        return "2TB";
+        break;
+    default:
+        return "\0";
+        break;
+    }
+}
+
+string selectColor(int Color)
+{
+    switch (Color)
+    {
+    case White:
+        return "White";
+        break;
+    case Black:
+        return "Black";
+        break;
+    case Red:
+        return "Red";
+        break;
+    case Blue:
+        return "Blue";
+        break;
+    case Yellow:
+        return "Yellow";
+        break;
+    default:
+        return "\0";
+        break;
+    }
+}
+
+void add_phone(mobileType *mobileStore, int &size, int &hiddenSize)
+{
+    char cnt;
+
+    // if (hiddenSize >= size)
+    // {
+    //     mobileType *helpInSize = new mobileType[size + 1];
+    //     for (int i = 0; i < hiddenSize; i++)
+    //     {
+    //         helpInSize[i] = mobileStore[i];
+    //     }
+    //     delete[] mobileStore;
+    //     mobileStore = helpInSize;
+    //     size += 1;
+    // }
+    string name;
+    string company;
+
+    cout << "Enter phone name : ";
+    cin >> name;
+    cout << "Enter phone company : ";
+    cin >> company;
+    if (checkRepetition(mobileStore, hiddenSize, name, company))
+    {
+        cout << "There is a phone with these specification!\n";
+    }
+    if (!checkRepetition(mobileStore, hiddenSize, name, company))
+    {
+        mobileStore[hiddenSize].name = name;
+        mobileStore[hiddenSize].company = company;
+        int OS;
+        do
+        {
+            cout << "Enter Os:\t1- IOS\t2- Andorid\t3-WindowsPhone\n";
+            cin >> OS;
+            OS--;
+            if (selectOS(OS) == "\0")
+            {
+                cout << "Undifined!\t Try Again\n";
+            }
+        } while (selectOS(OS) == "\0");
+        mobileStore[hiddenSize].OS = selectOS(OS);
+        int Ram;
+        do
+        {
+            cout << "Choose Ram : \n";
+            cout << "1- 2GB   2- 4GB   3- 6GB   4- 8GB   5- 12GB   6- 16GB   7- 32GB   8- 64GB\n";
+            cin >> Ram;
+            Ram--;
+            if (selectRam(Ram) == "\0")
+            {
+                cout << "Undifined!\t Try Again\n";
+            }
+
+        } while (selectRam(Ram) == "\0");
+        mobileStore[hiddenSize].Ram = selectRam(Ram);
+        int Storage;
+        do
+        {
+            cout << "Choose Storage : \n";
+            cout << "1- 16GB   2- 32GB   3- 64GB   4- 128GB   5- 256GB   6- 512GB   7- 1TB   8- 2TB\n";
+            cin >> Storage;
+            Storage--;
+            if (selectStorage(Storage) == "\0")
+            {
+                cout << "Undifined!\t Try Again\n";
+            }
+
+        } while (selectStorage(Storage) == "\0");
+        mobileStore[hiddenSize].Storage = selectStorage(Storage);
+        int Color;
+        do
+        {
+            Color--;
+            cout << "Choose Color : \n";
+            cout << "1- White   2- Black   3- Red   4- Blue   5- Yellow\n";
+            cin >> Color;
+            if (selectColor(Color) == "\0")
+            {
+                cout << "Undifined!\t Try Again\n";
+            }
+        } while (selectColor(Color) == "\0");
+        mobileStore[hiddenSize].Color = selectColor(Color);
+
+        cout << "Enter Price : ";
+        cin >> mobileStore[hiddenSize].price;
+
+        cout << "Enter number of phone in store : ";
+        cin >> mobileStore[hiddenSize].avalibleInStore;
+
+        cout << "Enter number of phones sold : ";
+        cin >> mobileStore[hiddenSize].mobileSold;
+        cout << mobileStore[hiddenSize].name;
+        hiddenSize++;
+    }
+
+    // cout << "\ndo you want add a new phone? (y/n)\n";
+    // cin >> cnt;
+}
+
+void remove_phone(mobileType *mobileStore, int hiddenSize)
+{
+    mobileType *helpRemove = new mobileType[hiddenSize - 1];
+    int removeIndex;
+    bool isFound = false;
+    string phName, phCompany;
+    cout << "Enter phone name : ";
+    cin >> phName;
+    cout << "Enter phone company : ";
+    cin >> phCompany;
+    for (int i = 0; i < hiddenSize; i++)
+    {
+        if (phCompany == mobileStore[i].company && phName == mobileStore[i].name)
+        {
+            removeIndex = i;
+            isFound = true;
+            break;
+        }
+    }
+    if (isFound)
+    {
+        for (int i = removeIndex; i < hiddenSize - 1; i++)
+        {
+            mobileType temp = mobileStore[i];
+            mobileStore[i] = mobileStore[i + 1];
+            mobileStore[i + 1] = temp;
+        }
+        for (int i = 0; i < hiddenSize - 1; i++)
+        {
+            helpRemove[i] = mobileStore[i];
+        }
+        delete[] mobileStore;
+        mobileStore = helpRemove;
+    }
+    else
+    {
+        cout << "\nNot found\n";
+    }
+}
+
+void sort_by_price(mobileType *mobileStore, int hiddenSize)
+{
+    for (int i = 0; i < hiddenSize - 1; i++)
+    {
+        for (int j = 0; j < hiddenSize - 1; j++)
+        {
+            if (mobileStore[j].price > mobileStore[j + 1].price)
+            {
+                mobileType helpSort = mobileStore[j];
+                mobileStore[j] = mobileStore[j + 1];
+                mobileStore[j + 1] = helpSort;
+            }
+        }
+    }
+    cout << "Sorted successfully :)\nDo you want see that?(y/n)\n";
+    char see;
+    cin >> see;
+    if (see == 'y')
+    {
+        print_phones(mobileStore, hiddenSize);
+    }
+    else
+    {
+        cout << "Ok :(";
+    }
+}
+
+int search(mobileType *mobileStore, int hiddenSize)
+{
+    int index = -1;
+    string company, name;
+    cout << "Enter phone name : ";
+    cin >> name;
+    cout << "Enter phone company : ";
+    cin >> company;
+    for (int i = 0; i < hiddenSize; i++)
+    {
+        if (name == mobileStore[i].name && company == mobileStore[i].company)
+        {
+            index = i;
+        }
+    }
+    return index;
+}
+
+void change_mobile_info(mobileType *mobileStore, int hiddenSize)
+{
+    bool condition = true;
+    int changeIndex;
+    do
+    {
+        string name, company;
+        cout << "Enter phone name : ";
+        cin >> name;
+        cout << "Enter phone company : ";
+        cin >> company;
+        for (int i = 0; i < hiddenSize; i++)
+        {
+            if (company == mobileStore[i].company && name == mobileStore[i].name)
+            {
+                condition = false;
+                changeIndex = i;
+            }
+        }
+        if (condition)
+        {
+            cout << "Not found!   Try Again:)\n";
+        }
+    } while (condition);
+
+    int changeMenu;
+    do
+    {
+        cout << "1- Change OS\n2- Change Ram\n3- Change Storage\n4- Change Color\n5- Change Price\n6- Back\n";
+        cout << "---------------------------\n";
+        cin >> changeMenu;
+        switch (changeMenu)
+        {
+        case 1:
+            int OS;
+            do
+            {
+                cout << "Enter Os:\t1- IOS\t2- Andorid\t3-WindowsPhone\n";
+                cin >> OS;
+                OS--;
+                if (selectOS(OS) == "\0")
+                {
+                    cout << "Undifined!\t Try Again\n";
+                }
+            } while (selectOS(OS) == "\0");
+            mobileStore[changeIndex].OS = selectOS(OS);
+            break;
+        case 2:
+            int Ram;
+            do
+            {
+                cout << "Choose Ram : \n";
+                cout << "1- 2GB   2- 4GB   3- 6GB   4- 8GB   5- 12GB   6- 16GB   7- 32GB   8- 64GB\n";
+                cin >> Ram;
+                Ram--;
+                if (selectRam(Ram) == "\0")
+                {
+                    cout << "Undifined!\t Try Again\n";
+                }
+
+            } while (selectRam(Ram) == "\0");
+            mobileStore[changeIndex].Ram = selectRam(Ram);
+            break;
+        case 3:
+            int Storage;
+            do
+            {
+                cout << "Choose Storage : \n";
+                cout << "1- 16GB   2- 32GB   3- 64GB   4- 128GB   5- 256GB   6- 512GB   7- 1TB   8- 2TB\n";
+                cin >> Storage;
+                Storage--;
+                if (selectStorage(Storage) == "\0")
+                {
+                    cout << "Undifined!\t Try Again\n";
+                }
+
+            } while (selectStorage(Storage) == "\0");
+            mobileStore[changeIndex].Storage = selectStorage(Storage);
+            break;
+        case 4:
+            int Color;
+            do
+            {
+                Color--;
+                cout << "Choose Color : \n";
+                cout << "1- White   2- Black   3- Red   4- Blue   5- Yellow\n";
+                cin >> Color;
+                if (selectColor(Color) == "\0")
+                {
+                    cout << "Undifined!\t Try Again\n";
+                }
+            } while (selectColor(Color) == "\0");
+            mobileStore[changeIndex].Color = selectColor(Color);
+            break;
+        case 5:
+            cout << "Enter Price : ";
+            cin >> mobileStore[changeIndex].price;
+            break;
+        default:
+            cout << "Ok\n";
+            break;
+        }
+    } while (changeMenu != 6);
+}
+
+void sell_a_phone(mobileType *mobileStore, int hiddenSize)
+{
+    bool condition = true;
+    do
+    {
+        string name, company;
+        cout << "Enter phone name : ";
+        cin >> name;
+        cout << "Enter phone company : ";
+        cin >> company;
+        for (int i = 0; i < hiddenSize; i++)
+        {
+            if (company == mobileStore[i].company && name == mobileStore[i].name)
+            {
+                condition = false;
+                mobileStore[i].mobileSold++;
+                mobileStore[i].avalibleInStore--;
+            }
+        }
+        if (condition)
+        {
+            cout << "Not found!   Try Again:)\n";
+        }
+    } while (condition);
+}
+
+void most_sold_item(mobileType *mobileStore, int hiddenSize)
+{
+    mobileType *copyMobileStore = new mobileType[hiddenSize];
+    for (int i = 0; i < hiddenSize; i++)
+    {
+        copyMobileStore[i] = mobileStore[i];
+    }
+    for (int i = 0; i < hiddenSize - 1; i++)
+    {
+        for (int j = 0; j < hiddenSize - 1; j++)
+        {
+            if (copyMobileStore[j].mobileSold < copyMobileStore[j + 1].mobileSold)
+            {
+                mobileType temp = copyMobileStore[j];
+                copyMobileStore[j] = copyMobileStore[j + 1];
+                copyMobileStore[j + 1] = temp;
+            }
+        }
+    }
+    print_phones(copyMobileStore, hiddenSize);
+    delete[] copyMobileStore;
+}
